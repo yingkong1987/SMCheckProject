@@ -13,7 +13,7 @@ class CleanUnusedMethods: NSObject {
     override init() {
         
     }
-    let blackList : Array = ["OnlinePush","Jce","WnsSDK","WYTeamManager","TTTAttributedLabel","UIImage+Additions","WYSchemeHandler"];
+    let blackList : Array = ["OnlinePush","Jce","WnsSDK","WYTeamManager","TTTAttributedLabel","UIImage+Additions","WYSchemeHandler"]
 
 
     func isBlackListFile(fullPath : String) -> Bool {
@@ -23,6 +23,16 @@ class CleanUnusedMethods: NSObject {
             }
         }
         return false
+    }
+
+
+    let funcWhiteList : Array = ["responseModelWithData:",
+                                 "initWithTableView:",
+                                 "setErrMessage:",
+                                 "reloadWithOpenUrlInfo:"]
+
+    func isFuncWhiteList(methodName: String) -> Bool {
+       return funcWhiteList.contains(methodName)
     }
     
     func find(path: String) -> Observable<Any> {
@@ -325,7 +335,7 @@ class CleanUnusedMethods: NSObject {
                     if methodsMFileSet.contains(aHMethod.pnameId) {
                         //todo:定义一些继承的类，将继承方法加入头文件中的情况
                         //白名单
-                        if aHMethod.pnameId == "responseModelWithData:" || aHMethod.pnameId == "initWithTableView:" || aHMethod.pnameId == "setErrMessage:" {
+                        if self.isFuncWhiteList(methodName: aHMethod.pnameId) {
                             continue
                         }
                         print("\n方法: \(aHMethod.pnameId)\n路径: \(aHMethod.filePath.replacingOccurrences(of: "file:///Users/geminiyao/Documents/TXCode/", with: ""))\n")

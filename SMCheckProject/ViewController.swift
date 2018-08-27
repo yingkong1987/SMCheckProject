@@ -118,7 +118,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         desLb.snp.makeConstraints { (make) in
             make.bottom.equalTo(self.dragView.snp.bottom).offset(-10)
             make.left.equalTo(self.dragView.snp.left).offset(15)
-            make.width.equalTo(300)
+            make.width.equalTo(self.dragView.snp.width).offset(-100)
             make.height.equalTo(30)
         }
 
