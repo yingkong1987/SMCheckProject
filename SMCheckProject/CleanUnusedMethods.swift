@@ -13,6 +13,17 @@ class CleanUnusedMethods: NSObject {
     override init() {
         
     }
+    let blackList : Array = ["OnlinePush","Jce","WnsSDK","WYTeamManager","TTTAttributedLabel","UIImage+Additions","WYSchemeHandler"];
+
+
+    func isBlackListFile(fullPath : String) -> Bool {
+        for element in blackList {
+            if fullPath.range(of: element) != nil {
+                return true
+            }
+        }
+        return false
+    }
     
     func find(path: String) -> Observable<Any> {
         
@@ -45,7 +56,7 @@ class CleanUnusedMethods: NSObject {
                 //读取文件内容
                 let fileUrl = URL(string: fullPath)
                 
-                if fileUrl == nil {
+                if fileUrl == nil || self.isBlackListFile(fullPath: fullPath) {
                     
                 } else {
                     let aFile = File()
@@ -92,7 +103,7 @@ class CleanUnusedMethods: NSObject {
                         //处理 #import start
                         if aLine.hasPrefix(Sb.importStr) {
                             let imp = ParsingImport.parsing(tokens: tokens)
-                            guard imp.fileName.characters.count > 0 else {
+                            guard imp.fileName.count > 0 else {
                                 continue
                             }
                             aFile.imports.append(imp)
@@ -292,9 +303,9 @@ class CleanUnusedMethods: NSObject {
             //todo:去重
             let methodsUsedSet = Set(methodsUsed) //用过方法
             let methodsMFileSet = Set(methodsMFile) //m的映射文件
-            print("H方法：\(methodsDefinedInHFile.count)个")
-            print("M方法：\(methodsDefinedInMFile.count)个")
-            print("用过方法(包括系统的)：\(methodsUsed.count)个")
+//            print("H方法：\(methodsDefinedInHFile.count)个")
+//            print("M方法：\(methodsDefinedInMFile.count)个")
+//            print("用过方法(包括系统的)：\(methodsUsed.count)个")
             //找出h文件中没有用过的方法
             var unUsedMethods = [Method]()
             for aHMethod in methodsDefinedInHFile {
@@ -314,10 +325,10 @@ class CleanUnusedMethods: NSObject {
                     if methodsMFileSet.contains(aHMethod.pnameId) {
                         //todo:定义一些继承的类，将继承方法加入头文件中的情况
                         //白名单
-//                        if aHMethod.pnameId == "responseModelWithData:" || aHMethod.pnameId == "initWithTableView:" || aHMethod.pnameId == "setErrMessage:" {
-//                            continue
-//                        }
-                        
+                        if aHMethod.pnameId == "responseModelWithData:" || aHMethod.pnameId == "initWithTableView:" || aHMethod.pnameId == "setErrMessage:" {
+                            continue
+                        }
+                        print("\n方法: \(aHMethod.pnameId)\n路径: \(aHMethod.filePath.replacingOccurrences(of: "file:///Users/geminiyao/Documents/TXCode/", with: ""))\n")
                         unUsedMethods.append(aHMethod)
                     }
                 }
@@ -339,5 +350,4 @@ class CleanUnusedMethods: NSObject {
         //删除
         ParsingBase.delete(methods: methods)
     }
-    
 }

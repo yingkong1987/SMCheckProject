@@ -7,25 +7,31 @@
 //
 
 import Cocoa
-import SnapKit
 import RxSwift
+import SnapKit
 
-class ViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate,DragViewDelegate {
-    
-    @IBOutlet weak var parsingIndicator: NSProgressIndicator!
-    @IBOutlet weak var desLb: NSTextField!
-    @IBOutlet weak var pathDes: NSTextField!
-    @IBOutlet weak var cleanBt: NSButton!
-    @IBOutlet weak var resultTb: NSTableView!
-    @IBOutlet weak var dragView: DragView!
-    @IBOutlet weak var seachBt: NSButtonCell!
-    @IBOutlet weak var detailTv: NSScrollView!
+class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate, DragViewDelegate {
+    @IBOutlet var parsingIndicator: NSProgressIndicator!
+    @IBOutlet var desLb: NSTextField!
+    @IBOutlet var pathDes: NSTextField!
+    @IBOutlet var cleanBt: NSButton!
+    @IBOutlet var resultTb: NSTableView!
+    @IBOutlet var dragView: DragView!
+    @IBOutlet var seachBt: NSButtonCell!
+    @IBOutlet var detailTv: NSScrollView!
     @IBOutlet var detailTxv: NSTextView!
+    @IBOutlet var projectTitle: NSTextField!
+    @IBOutlet var unUseMethodTitle: NSTextField!
+    @IBOutlet var scrollView: NSScrollView!
+    @IBOutlet weak var searchButton: NSButton!
+    @IBOutlet weak var searchIndicator: NSProgressIndicator!
     
-    var unusedMethods = [Method]() //无用方法
-    var selectedPath : String = "" {
+    @IBOutlet weak var addPathBuuton: NSButton!
+    @IBOutlet weak var dragTextField: NSTextField!
+    var unusedMethods = [Method]() // 无用方法
+    var selectedPath: String = "" {
         didSet {
-            if selectedPath.characters.count > 0 {
+            if selectedPath.count > 0 {
                 let ud = UserDefaults()
                 ud.set(selectedPath, forKey: "selectedPath")
                 ud.synchronize()
@@ -33,37 +39,125 @@ class ViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate
             }
         }
     }
-    var filesDic = [String:File]() //遍历后文件集
-    var parsingLog = "" //遍历后的日志
-    
+
+    var filesDic = [String: File]() // 遍历后文件集
+    var parsingLog = "" // 遍历后的日志
+
+    func setupUIAutoLayout() {
+
+        projectTitle.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(5)
+            make.left.equalToSuperview().offset(20)
+            make.width.equalTo(70)
+            make.height.equalTo(20)
+        }
+
+        pathDes.snp.makeConstraints { make in
+            make.left.equalTo(addPathBuuton.snp.right).offset(15)
+            make.top.equalTo(projectTitle.snp.top)
+            make.height.equalTo(projectTitle.snp.height)
+            make.right.equalTo(self.view.snp.right).offset(-20)
+        }
+
+        addPathBuuton.snp.makeConstraints { (make) in
+            make.left.equalTo(self.projectTitle.snp.right)
+            make.centerY.equalTo(self.projectTitle)
+            make.height.equalTo(20)
+            make.width.equalTo(20)
+        }
+
+        unUseMethodTitle.snp.makeConstraints { (make) in
+            make.top.equalTo(self.projectTitle.snp.bottom).offset(10)
+            make.left.equalTo(self.projectTitle)
+            make.height.equalTo(self.projectTitle)
+            make.width.equalTo(200)
+        }
+
+        searchButton.snp.makeConstraints { (make) in
+            make.top.equalToSuperview().offset(0)
+            make.right.equalToSuperview().offset(0)
+            make.width.equalTo(100)
+            make.height.equalTo(40)
+        }
+
+        searchIndicator.snp.makeConstraints { (make) in
+            make.height.equalTo(searchButton)
+            make.width.equalTo(searchButton.snp.height)
+            make.centerY.equalTo(searchButton)
+            make.right.equalTo(searchButton.snp.left).offset(-5)
+        }
+        
+
+        dragView.snp.makeConstraints { make in
+            make.edges.equalTo(self.view).inset(NSEdgeInsetsMake(40, 20, 20, 20))
+        }
+
+        scrollView.snp.makeConstraints { make in
+            make.top.equalTo(self.dragView).offset(40)
+            make.left.equalTo(self.dragView).offset(20)
+            make.bottom.equalTo(self.dragView.snp.bottom).offset(-60)
+            make.right.equalTo(self.dragView.snp.centerX).offset(-15)
+        }
+
+        detailTv.snp.makeConstraints { make in
+            make.top.equalTo(self.dragView).offset(40)
+            make.right.equalTo(self.dragView).offset(20)
+            make.bottom.equalTo(self.dragView.snp.bottom).offset(-60)
+            make.left.equalTo(self.dragView.snp.centerX).offset(15)
+        }
+
+        dragTextField.snp.makeConstraints { (make) in
+            make.centerX.equalTo(dragView)
+            make.top.equalTo(dragView.snp.top).offset(10)
+            make.width.equalTo(200)
+            make.height.equalTo(40)
+        }
+        dragTextField.alignment = NSTextAlignment.center
+
+
+        desLb.snp.makeConstraints { (make) in
+            make.bottom.equalTo(self.dragView.snp.bottom).offset(-10)
+            make.left.equalTo(self.dragView.snp.left).offset(15)
+            make.width.equalTo(300)
+            make.height.equalTo(30)
+        }
+
+        cleanBt.snp.makeConstraints { (make) in
+            make.bottom.equalTo(self.dragView.snp.bottom).offset(-10)
+            make.right.equalTo(self.dragView.snp.right).offset(-15)
+            make.width.equalTo(100)
+            make.height.equalTo(30)
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         detailTxv.string = ""
         detailTxv.textColor = NSColor.gray
         parsingIndicator.isHidden = true
         desLb.stringValue = ""
-        pathDes.stringValue = "请选择工程目录"
+        pathDes.stringValue = "请选择工程目录--------------------------"
         cleanBt.isEnabled = false
         resultTb.doubleAction = #selector(cellDoubleClick)
-        if (UserDefaults().object(forKey: "selectedPath") != nil) {
+        if UserDefaults().object(forKey: "selectedPath") != nil {
             selectedPath = UserDefaults().value(forKey: "selectedPath") as! String
         }
-        
+
+        self.setupUIAutoLayout()
     }
-    
+
     override func awakeFromNib() {
         dragView.delegate = self
     }
-    
-    //查找按钮
+
+    // 查找按钮
     @IBAction func searchMethodAction(_ sender: Any) {
-        if selectedPath.characters.count > 0 {
-            self.searchingUnusedMethods()
+        if selectedPath.count > 0 {
+            searchingUnusedMethods()
         }
-        
     }
-    
-    //清理按钮
+
+    // 清理按钮
     @IBAction func cleanMethodsAction(_ sender: AnyObject) {
         desLb.stringValue = "清理中..."
         cleanBt.isEnabled = false
@@ -79,8 +173,8 @@ class ViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate
             }
         }
     }
-    
-    //Priavte
+
+    // Priavte
     private func searchingUnusedMethods() {
         parsingIndicator.isHidden = false
         parsingIndicator.startAnimation(nil)
@@ -92,12 +186,12 @@ class ViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate
         parsingLog = ""
         DispatchQueue.global().async {
 //            self.unusedMethods = CleanUnusedMethods().find(path: self.selectedPath)
-            _ = CleanUnusedMethods().find(path: self.selectedPath).subscribe(onNext: { (result) in
+            _ = CleanUnusedMethods().find(path: self.selectedPath).subscribe(onNext: { result in
                 if result is String {
                     DispatchQueue.main.async {
                         self.desLb.stringValue = result as! String
                     }
-                    
+
                 } else if result is [Method] {
                     self.unusedMethods = result as! [Method]
                 } else if result is File {
@@ -105,7 +199,6 @@ class ViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate
                         let aFile = result as! File
                         self.filesDic[aFile.path] = aFile
                         self.parsingLog = self.parsingLog + aFile.des() + "\n"
-                        
                     }
                 }
             })
@@ -116,67 +209,65 @@ class ViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate
                 self.parsingIndicator.isHidden = true
                 self.desLb.stringValue = "完成查找"
                 self.resultTb.reloadData()
-                
+
                 self.detailTxv.string = self.parsingLog
-                self.detailTv.contentView .scroll(to: NSPoint(x: 0, y: ((self.detailTv.documentView?.frame.size.height)! - self.detailTv.contentSize.height)))
-                
-                //处理无用import
+                self.detailTv.contentView.scroll(to: NSPoint(x: 0, y: ((self.detailTv.documentView?.frame.size.height)! - self.detailTv.contentSize.height)))
+
+                // 处理无用import
                 DispatchQueue.global().async {
-                    let _ = CleanUnusedImports().find(files: self.filesDic).subscribe(onNext: { (result) in
-                        if result is [String:File] {
-                            //接受更新后的全部文件
-                            self.filesDic = result as! [String:File]
-                        } else if result is [String:Object] {
-                            //接受全部无用import字典
-                            
+                    _ = CleanUnusedImports().find(files: self.filesDic).subscribe(onNext: { result in
+                        if result is [String: File] {
+                            // 接受更新后的全部文件
+                            self.filesDic = result as! [String: File]
+                        } else if result is [String: Object] {
+                            // 接受全部无用import字典
                         }
                     })
                 }
-                
             }
         }
-        
     }
-    
-    //选择一个文件夹
+
+    // 选择一个文件夹
     private func selectFolder() -> String {
-        let openPanel = NSOpenPanel();
-        openPanel.canChooseDirectories = true;
-        openPanel.canChooseFiles = false;
-        if(openPanel.runModal() == NSModalResponseOK) {
-            //print(openPanel.url?.absoluteString)
+        let openPanel = NSOpenPanel()
+        openPanel.canChooseDirectories = true
+        openPanel.canChooseFiles = false
+        if openPanel.runModal() == NSModalResponseOK {
+            // print(openPanel.url?.absoluteString)
             let path = openPanel.url?.absoluteString
-            //print("选择文件夹路径: \(path)")
+            // print("选择文件夹路径: \(path)")
             return path!
         }
-        
+
         return ""
     }
-    
-    //TableView
-    //Cell DoubleClick
+
+    // TableView
+    // Cell DoubleClick
     func cellDoubleClick() {
-        let aMethod = self.unusedMethods[self.resultTb.clickedRow]
+        let aMethod = unusedMethods[self.resultTb.clickedRow]
         let filePathString = aMethod.filePath.replacingOccurrences(of: "file://", with: "")
-        //双击打开finder到指定的文件
+        // 双击打开finder到指定的文件
         NSWorkspace.shared().openFile(filePathString, withApplication: "Xcode")
     }
-    //Cell OneClick
+
+    // Cell OneClick
     func cellOneClick() {
-        let aMethod = self.unusedMethods[self.resultTb.selectedRow]
-        let cFile = self.filesDic[aMethod.filePath]
-        self.detailTxv.string = cFile?.content
+        let aMethod = unusedMethods[self.resultTb.selectedRow]
+        let cFile = filesDic[aMethod.filePath]
+        detailTxv.string = cFile?.content
     }
-    
-    //NSTableViewDataSource
+
+    // NSTableViewDataSource
     func numberOfRows(in tableView: NSTableView) -> Int {
-        return self.unusedMethods.count
+        return unusedMethods.count
     }
-    
-    //NSTableViewDelegate
+
+    // NSTableViewDelegate
     func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
-        let aMethod = self.unusedMethods[row]
-        
+        let aMethod = unusedMethods[row]
+
         let columnId = tableColumn?.identifier
         if columnId == "MethodId" {
             return aMethod.pnameId
@@ -184,25 +275,26 @@ class ViewController: NSViewController,NSTableViewDataSource,NSTableViewDelegate
             let filePathString = aMethod.filePath.replacingOccurrences(of: "file://", with: "")
             return filePathString
         }
-        
+
         return nil
     }
-    
+
     func tableViewSelectionDidChange(_ notification: Notification) {
-        self.cellOneClick()
+        cellOneClick()
     }
-    
-    //DragViewDelegate
+
+    // DragViewDelegate
     func dragExit() {
         //
     }
+
     func dragEnter() {
         //
     }
+
     func dragFileOk(filePath: String) {
         print("\(filePath)")
         selectedPath = "file://" + filePath + "/"
         pathDes.stringValue = selectedPath.replacingOccurrences(of: "file://", with: "")
     }
 }
-
