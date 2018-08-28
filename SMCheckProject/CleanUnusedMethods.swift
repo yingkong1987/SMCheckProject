@@ -12,8 +12,8 @@ import RxSwift
 class CleanUnusedMethods: NSObject {
     override init() {}
 
-    let blackList: Array? = [String]()
-//    ["OnlinePush","Jce","WnsSDK","WYTeamManager","TTTAttributedLabel","UIImage+Additions","WYSchemeHandler","NSObject+BKAssociatedObjects", "Reachability", "Aspects", "QZAVHttpProxy"]
+    // 路径黑名单, 路径中包含关键字的将完全跳过扫描.
+    let blackList: Array? = [String]()//e.g. ["OnlinePush","Jce"]
 
     func isBlackListFile(fullPath: String) -> Bool {
         if blackList?.count == 0 {
@@ -30,39 +30,7 @@ class CleanUnusedMethods: NSObject {
 
     let funcWhiteList: Array = ["responseModelWithData:",
                                 "initWithTableView:",
-                                "setErrMessage:",
-                                "reloadWithOpenUrlInfo:", "closeBarButtonItemWithTarget:action:",
-                                "setLongPressGestureEnabled:",
-                                "UTIConvert:",
-                                "storageBadgeHideDict:",
-                                "storagePlaybackTimeDict:",
-                                "setParentVC:",
-                                "startPayWithOfferID:productId:payItem:quantity:producttype:productName:isDepositGameCoin:pf:pfKey:varItem:zoneid:",
-                                "showPopupPayPageFromWebView:aid:",
-                                "reachabilityChanged:",
-                                "stingToDictionaryWithInnerGlueUTF8Decode:outterGlue:isCompatibleMode:",
-                                "writeMovFrom:to:identifier:",
-                                "formatedDurationTime:",
-                                "setSelectedView:",
-                                "initWithViewController:focusView:",
-                                "initWithInstance:invocation:",
-                                "identifierWithSelector:object:options:block:error:",
-                                "qrcodeViewControllerWithShareOjb:",
-                                "shareToEmail:",
-                                "stackSafeBoxViewControllers:delegate:confirmTitle:hideCancelButton:",
-                                "userDraggingTouchPointOccured:",
-                                "editBarAction:",
-                                "toggleFlash:",
-                                "toggleSessionPreset:",
-                                "updatePickerType:numberOfImage:",
-                                "removeTaskWithNote:",
-                                "contentTypeMap:",
-                                "mediaInfoWithUrl:",
-                                "loginWithQQUrl:completion:",
-                                "loginWithWechatCode:completion:",
-                                "showInVC:",
-                                "createDirAtPath:",
-                                "initWithScanImage:"]
+                                "setErrMessage:"]
 
     func isFuncWhiteList(methodName: String) -> Bool {
         return funcWhiteList.contains(methodName)
