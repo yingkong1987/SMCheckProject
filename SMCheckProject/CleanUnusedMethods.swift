@@ -103,7 +103,13 @@ class CleanUnusedMethods: NSObject {
                     // 显示parsing的状态
                     observer.on(.next("进度：\(i + 1)/\(count) 正在查询文件：\(aFile.name)"))
                     i += 1
-                    let content = try! String(contentsOf: fileUrl!, encoding: String.Encoding.utf8)
+                    let content: String
+//                    let content = try? String(contentsOf: fileUrl!, encoding: String.Encoding.utf8)
+                    do {
+                        content = try String(contentsOf: fileUrl!, encoding: String.Encoding.utf8)
+                    } catch {
+                        content = ""
+                    }
                     // print("文件内容: \(content)")
                     aFile.content = content
 
