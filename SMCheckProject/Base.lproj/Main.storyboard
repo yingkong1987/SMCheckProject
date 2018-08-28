@@ -862,6 +862,9 @@
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="openFinderSelectPath:" target="XfG-lQ-9wD" id="Dca-O5-4b5"/>
+                                </connections>
                             </button>
                         </subviews>
                     </view>

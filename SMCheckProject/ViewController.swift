@@ -229,6 +229,10 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     }
 
     // 选择一个文件夹
+    @IBAction func openFinderSelectPath(_ sender: Any) {
+        self.selectFolder()
+    }
+
     private func selectFolder() -> String {
         let openPanel = NSOpenPanel()
         openPanel.canChooseDirectories = true
@@ -237,6 +241,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             // print(openPanel.url?.absoluteString)
             let path = openPanel.url?.absoluteString
             // print("选择文件夹路径: \(path)")
+            selectedPath = "file://" + path! + "/"
+            pathDes.stringValue = selectedPath.replacingOccurrences(of: "file://", with: "")
             return path!
         }
 
