@@ -28,6 +28,7 @@ class CleanUnusedMethods: NSObject {
         return false
     }
 
+    // 加入数组中方法,将不会展示在结果中.
     let funcWhiteList: Array = ["responseModelWithData:",
                                 "initWithTableView:",
                                 "setErrMessage:"]
