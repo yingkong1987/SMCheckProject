@@ -23,11 +23,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     @IBOutlet var projectTitle: NSTextField!
     @IBOutlet var unUseMethodTitle: NSTextField!
     @IBOutlet var scrollView: NSScrollView!
-    @IBOutlet weak var searchButton: NSButton!
-    @IBOutlet weak var searchIndicator: NSProgressIndicator!
-    
-    @IBOutlet weak var addPathBuuton: NSButton!
-    @IBOutlet weak var dragTextField: NSTextField!
+    @IBOutlet var searchButton: NSButton!
+    @IBOutlet var searchIndicator: NSProgressIndicator!
+
+    @IBOutlet var addPathBuuton: NSButton!
+    @IBOutlet var dragTextField: NSTextField!
     var unusedMethods = [Method]() // 无用方法
     var selectedPath: String = "" {
         didSet {
@@ -44,7 +44,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     var parsingLog = "" // 遍历后的日志
 
     func setupUIAutoLayout() {
-
         projectTitle.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(5)
             make.left.equalToSuperview().offset(20)
@@ -59,34 +58,33 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             make.right.equalTo(self.view.snp.right).offset(-20)
         }
 
-        addPathBuuton.snp.makeConstraints { (make) in
+        addPathBuuton.snp.makeConstraints { make in
             make.left.equalTo(self.projectTitle.snp.right)
             make.centerY.equalTo(self.projectTitle)
             make.height.equalTo(20)
             make.width.equalTo(20)
         }
 
-        unUseMethodTitle.snp.makeConstraints { (make) in
+        unUseMethodTitle.snp.makeConstraints { make in
             make.top.equalTo(self.projectTitle.snp.bottom).offset(10)
             make.left.equalTo(self.projectTitle)
             make.height.equalTo(self.projectTitle)
             make.width.equalTo(200)
         }
 
-        searchButton.snp.makeConstraints { (make) in
+        searchButton.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(0)
             make.right.equalToSuperview().offset(0)
             make.width.equalTo(100)
             make.height.equalTo(40)
         }
 
-        searchIndicator.snp.makeConstraints { (make) in
+        searchIndicator.snp.makeConstraints { make in
             make.height.equalTo(searchButton)
             make.width.equalTo(searchButton.snp.height)
             make.centerY.equalTo(searchButton)
             make.right.equalTo(searchButton.snp.left).offset(-5)
         }
-        
 
         dragView.snp.makeConstraints { make in
             make.edges.equalTo(self.view).inset(NSEdgeInsetsMake(40, 20, 20, 20))
@@ -106,7 +104,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             make.left.equalTo(self.dragView.snp.centerX).offset(15)
         }
 
-        dragTextField.snp.makeConstraints { (make) in
+        dragTextField.snp.makeConstraints { make in
             make.centerX.equalTo(dragView)
             make.top.equalTo(dragView.snp.top).offset(10)
             make.width.equalTo(200)
@@ -114,15 +112,14 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         }
         dragTextField.alignment = NSTextAlignment.center
 
-
-        desLb.snp.makeConstraints { (make) in
+        desLb.snp.makeConstraints { make in
             make.bottom.equalTo(self.dragView.snp.bottom).offset(-10)
             make.left.equalTo(self.dragView.snp.left).offset(15)
             make.width.equalTo(self.dragView.snp.width).offset(-100)
             make.height.equalTo(30)
         }
 
-        cleanBt.snp.makeConstraints { (make) in
+        cleanBt.snp.makeConstraints { make in
             make.bottom.equalTo(self.dragView.snp.bottom).offset(-10)
             make.right.equalTo(self.dragView.snp.right).offset(-15)
             make.width.equalTo(100)
@@ -143,7 +140,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             selectedPath = UserDefaults().value(forKey: "selectedPath") as! String
         }
 
-        self.setupUIAutoLayout()
+        setupUIAutoLayout()
     }
 
     override func awakeFromNib() {
@@ -230,10 +227,10 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
     // 选择一个文件夹
     @IBAction func openFinderSelectPath(_ sender: Any) {
-        self.selectFolder()
+        selectFolder()
     }
 
-    private func selectFolder() -> String {
+    private func selectFolder() {
         let openPanel = NSOpenPanel()
         openPanel.canChooseDirectories = true
         openPanel.canChooseFiles = false
@@ -241,12 +238,10 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             // print(openPanel.url?.absoluteString)
             let path = openPanel.url?.absoluteString
             // print("选择文件夹路径: \(path)")
-            selectedPath = "file://" + path! + "/"
-            pathDes.stringValue = selectedPath.replacingOccurrences(of: "file://", with: "")
-            return path!
+            selectedPath = "file://" + path!
+//            return path!
         }
-
-        return ""
+//        return ""
     }
 
     // TableView

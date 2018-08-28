@@ -9,13 +9,13 @@
 import Cocoa
 
 protocol DragViewDelegate {
-    func dragEnter();
-    func dragExit();
-    func dragFileOk(filePath:String);
+    func dragEnter()
+    func dragExit()
+    func dragFileOk(filePath: String)
 }
 
 class DragView: NSView {
-    var delegate : DragViewDelegate?
+    var delegate: DragViewDelegate?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -56,5 +56,4 @@ class DragView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
     }
-    
 }
